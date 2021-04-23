@@ -26,6 +26,8 @@ get '/' do
 	erb :index
 end
 
+# обработчик get-запроса /new
+# (браузер получает страницу с сервера)
 get '/new' do
    erb :new
 end
@@ -43,14 +45,36 @@ post '/new' do
 
    	@db.execute 'insert into Posts (content, created_date) values (?, datetime())', [content]
 
+   # перенаправление на главную страницу	
    redirect to '/'
 end
 
+# вывод информации о посте
 get '/details/:post_id' do
+	
+	# получаем переменную из url'a
 	post_id = params[:post_id]
 
+	# получаем список постов
+	# (у нас будет только один пост)
 	results = @db.execute 'select * from Posts where id = ?', [post_id]
+	
+	# выбираем этот один пост в переменную @row
 	@row = results[0]
 
+	# возвращаем представление details.erb
 	erb :details
+end	
+
+#обработчик post-запроса /details/...
+#(браузер отправляет данные на сервер, а мы их принимаем)
+post '/details/:post_id' do
+
+	# получаем переменную из url'a
+	post_id = params[:post_id]
+
+	# получаем переменную из Post-запроса
+   content = params[:content]
+
+   erb "You typed comment #{content} for post #{post_id}"
 end	
